@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>Warden — Create Agent</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="/styles.css" rel="stylesheet" />
+</head>
+<body class="text-on-surface font-body-md bg-background antialiased min-h-screen flex">
+<nav class="fixed left-0 top-0 h-screen w-64 flex flex-col pt-10 pb-8 z-40 border-r border-white/10 bg-surface-container-lowest">
+<div class="px-6 mb-10">
+<div class="font-headline-md text-headline-md font-black tracking-widest text-on-surface">WARDEN</div>
+<div class="font-mono-label text-mono-label text-on-surface-variant mt-1">Compliance Rail v1.0</div>
+</div>
+<div class="flex-1 flex flex-col gap-2 px-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all" href="/">
+<span class="material-symbols-outlined">security</span>
+<span class="font-mono-label text-mono-label">Control Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-secondary-container/20 text-secondary-fixed-dim border-l-4 border-secondary-fixed-dim" href="/create.html">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">add_circle</span>
+<span class="font-mono-label text-mono-label">Create Agent</span>
+</a>
+</div>
+</nav>
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<header class="h-24 border-b border-white/10 bg-surface-container/10 backdrop-blur-md flex items-center px-gutter sticky top-0 z-30">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Create Agent</h1>
+<p class="font-mono-hash text-mono-hash text-on-surface-variant mt-1">Issue a verified identity and spending policy.</p>
+</div>
+</header>
+<div class="p-gutter flex-1 flex justify-center">
+<form id="form" class="glass-card rounded-xl p-8 w-full max-w-xl flex flex-col gap-6 h-fit">
+<div class="flex flex-col gap-2">
+<label class="font-mono-label text-mono-label text-on-surface-variant" for="name">AGENT NAME</label>
+<input id="name" required placeholder="e.g. Delta-Bot" class="bg-surface-container-low border border-white/10 rounded px-4 py-3 text-on-surface focus:border-secondary-fixed-dim focus:outline-none" />
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-mono-label text-mono-label text-on-surface-variant" for="principal">PRINCIPAL (OWNER)</label>
+<input id="principal" placeholder="e.g. Acme Corp" class="bg-surface-container-low border border-white/10 rounded px-4 py-3 text-on-surface focus:border-secondary-fixed-dim focus:outline-none" />
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-mono-label text-mono-label text-on-surface-variant" for="limit">SPENDING LIMIT (USD)</label>
+<input id="limit" type="number" value="1000" min="1" class="bg-surface-container-low border border-white/10 rounded px-4 py-3 text-on-surface focus:border-secondary-fixed-dim focus:outline-none" />
+</div>
+<button type="submit" id="submit" class="mt-2 py-3 rounded bg-secondary-container text-on-secondary font-mono-label text-mono-label hover:bg-secondary-fixed-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">verified_user</span> Issue Verified Agent
+</button>
+<p id="status" class="font-mono-hash text-mono-hash text-on-surface-variant"></p>
+</form>
+</div>
+</main>
+<script src="/create.js"></script>
+</body>
+</html>

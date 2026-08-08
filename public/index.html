@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>Warden — Control Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="/styles.css" rel="stylesheet" />
+</head>
+<body class="text-on-surface font-body-md bg-background antialiased min-h-screen flex">
+<nav class="fixed left-0 top-0 h-screen w-64 flex flex-col pt-10 pb-8 z-40 border-r border-white/10 bg-surface-container-lowest">
+<div class="px-6 mb-10">
+<div class="font-headline-md text-headline-md font-black tracking-widest text-on-surface">WARDEN</div>
+<div class="font-mono-label text-mono-label text-on-surface-variant mt-1">Compliance Rail v1.0</div>
+</div>
+<div class="flex-1 flex flex-col gap-2 px-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-secondary-container/20 text-secondary-fixed-dim border-l-4 border-secondary-fixed-dim" href="/">
+<span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">security</span>
+<span class="font-mono-label text-mono-label">Control Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all" href="/create.html">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-mono-label text-mono-label">Create Agent</span>
+</a>
+</div>
+<div class="px-6">
+<button id="reactivateBtn" class="w-full py-3 px-4 bg-surface-variant text-on-surface rounded-DEFAULT font-mono-label text-mono-label flex items-center justify-center gap-2 hover:bg-surface-variant/80 transition-colors">
+<span class="material-symbols-outlined">restart_alt</span> Reactivate All
+</button>
+</div>
+</nav>
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<header class="h-24 border-b border-white/10 bg-surface-container/10 backdrop-blur-md flex items-center justify-between px-gutter sticky top-0 z-30">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Control Center</h1>
+<p class="font-mono-hash text-mono-hash text-on-surface-variant mt-1">SYS_STATUS: NOMINAL | NETWORK: SECURE</p>
+</div>
+<div class="flex items-center gap-3">
+<button id="startBtn" class="px-6 py-2 rounded-full border border-secondary-fixed-dim/30 text-secondary-fixed-dim font-mono-label text-mono-label hover:bg-secondary-fixed-dim/10 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">play_arrow</span> Start Demo
+</button>
+<button id="stopBtn" class="px-6 py-2 rounded-full bg-surface-variant text-on-surface font-mono-label text-mono-label hover:bg-surface-variant/80 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">stop</span> Stop
+</button>
+<button id="sanctionBtn" class="px-6 py-2 rounded-full bg-error-container text-on-error-container font-mono-label text-mono-label hover:bg-error/80 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">gavel</span> Sanction Agent
+</button>
+</div>
+</header>
+<div class="p-gutter flex-1 grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<section class="lg:col-span-5 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Active Agents</h2>
+<span id="agentCount" class="font-mono-label text-mono-label text-secondary-fixed-dim">0 ONLINE</span>
+</div>
+<div id="agents" class="flex flex-col gap-6"></div>
+</section>
+<section class="lg:col-span-7 flex flex-col gap-6 h-[calc(100vh-140px)]">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">Live Compliance Feed
+<span class="w-2 h-2 rounded-full bg-secondary-fixed-dim animate-pulse" style="box-shadow:0 0 10px #00dbe9;"></span>
+</h2>
+</div>
+<div class="glass-card rounded-xl flex-1 overflow-hidden flex flex-col relative">
+<div class="px-6 py-3 border-b border-white/10 flex text-on-surface-variant font-mono-hash text-mono-hash">
+<div class="w-24">TIMESTAMP</div>
+<div class="flex-1">TRANSACTION DETAILS</div>
+<div class="w-20 text-right">AMOUNT</div>
+<div class="w-32 text-right">STATUS</div>
+</div>
+<div id="feed" class="flex-1 overflow-y-auto feed-scroll p-4 space-y-1 font-mono-hash text-mono-hash"></div>
+<div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-surface-container/80 to-transparent pointer-events-none"></div>
+</div>
+</section>
+</div>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>
