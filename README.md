@@ -12,14 +12,15 @@ Built on the [Cleanverse](https://cleanverse.com) compliance stack: **CVI** (ver
 
 ## How it works
 
-Each agent is issued a verified, revocable identity credential bound to a human or corporate principal. Before any payment settles, Warden evaluates it against four checks:
+Each agent is issued a verified, revocable identity credential (**CVI / A-Pass**) bound to a human or corporate principal, and payments settle in a real verified asset (**CVA / A-Token**, e.g. aUSDC). Before any payment settles, Warden evaluates it against the asset's own on-chain compliance policy plus its own controls:
 
-1. **Identity** — is the agent's credential active (not frozen / sanctioned)?
-2. **Counterparty** — is the recipient a verified entity?
-3. **Spending limit** — is the agent within its per-agent cap?
-4. **Enforcement** — the moment the principal's compliance status changes, the agent is frozen mid-stream.
+1. **Identity** — is the agent's A-Pass active (not frozen / sanctioned)?
+2. **Asset policy** — do the sender and recipient satisfy the A-Token's on-chain rule (minimum A-Pass tier, allowed/blocked countries)? A wallet with no verified identity cannot hold the asset.
+3. **Counterparty** — is the recipient a verified, non-sanctioned wallet?
+4. **Spending limit** — is the agent within its per-agent cap?
+5. **Enforcement** — the moment the principal's compliance status changes, the agent is frozen mid-stream, in both directions.
 
-Compliant payments flow through in seconds. Non-compliant ones never leave.
+The A-Token's rule is read live from Cleanverse (`/atoken/rules`) and enforced against each agent's A-Pass attributes, so **both CVI and CVA are essential to every decision**. Compliant payments flow through in seconds; non-compliant ones never leave.
 
 ```
  Agent  ──payment──▶  Warden  ──▶  settled
