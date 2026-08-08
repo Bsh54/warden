@@ -27,7 +27,7 @@ async function load() {
     const authorized = p.status === 'AUTHORIZED';
     const cls = authorized ? 'text-emerald-400' : 'text-error';
     const note = p.reason ? ` — ${p.reason}` : '';
-    return `<div class="flex justify-between gap-4 py-1 border-b border-white/5"><span class="text-on-surface-variant">${new Date(p.ts).toLocaleTimeString()}</span><span class="flex-1">${p.from} &rarr; ${p.to}</span><span class="w-20 text-right text-on-surface">$${p.amountUsd}</span><span class="w-56 text-right ${cls}">${p.status}${note}</span></div>`;
+    return `<div class="flex justify-between gap-4 py-1 border-b border-white/5"><span class="text-on-surface-variant">${new Date(p.ts).toLocaleTimeString()}</span><span class="flex-1">${p.from} &rarr; ${p.to}</span><span class="w-24 text-right text-on-surface">${p.amountUsd} ${p.asset || ''}</span><span class="w-56 text-right ${cls}">${p.status}${note}</span></div>`;
   }).join('') || '<span class="text-on-surface-variant">No payments yet.</span>';
 }
 

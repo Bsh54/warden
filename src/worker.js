@@ -1,7 +1,6 @@
 import { listAgents } from './store.js';
-import { createAgent, pay, VERIFIED_MERCHANTS } from './core.js';
+import { createAgent, pay, resolveAsset } from './core.js';
 
-const VERIFIED = [...VERIFIED_MERCHANTS];
 const UNVERIFIED = ['Unknown Entity', 'Anon Wallet', 'Unlisted Vendor'];
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -15,9 +14,7 @@ async function ensureAgents() {
 
 function counterparty(agent) {
   const others = listAgents().filter((a) => a.id !== agent.id).map((a) => a.id);
-  const roll = Math.random();
-  if (roll < 0.7 && others.length) return pick(others);
-  if (roll < 0.88) return pick(VERIFIED);
+  if (Math.random() < 0.8 && others.length) return pick(others);
   return pick(UNVERIFIED);
 }
 
@@ -33,6 +30,7 @@ async function tick() {
 }
 
 export async function startWorker() {
+  await resolveAsset();
   await ensureAgents();
   if (!timer) timer = setInterval(tick, 2500);
   return { running: true };

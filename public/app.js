@@ -54,7 +54,7 @@ function feedRow(p) {
   return `<div class="flex items-center px-2 py-2 rounded transition-colors ${rowCls}">
     <div class="w-24 text-on-surface-variant opacity-70">${time}</div>
     <div class="flex-1 text-on-surface flex items-center gap-2"><span class="${nameCls}">${p.from}</span><span class="material-symbols-outlined text-[14px] text-on-surface-variant">arrow_forward</span>${p.to}</div>
-    <div class="w-20 text-right text-on-surface">$${p.amountUsd}</div>
+    <div class="w-28 text-right text-on-surface">${p.amountUsd} ${p.asset || ''}</div>
     <div class="w-32 text-right ${statusCls} flex items-center justify-end gap-1"><span class="material-symbols-outlined text-[14px]">${icon}</span>${p.status}</div>
   </div>${reason}`;
 }
@@ -85,5 +85,14 @@ $('#reactivateBtn').onclick = async () => {
   refresh();
 };
 
+async function loadAsset() {
+  const a = await api('/api/asset');
+  const el = $('#asset');
+  if (a && el) {
+    el.textContent = `SETTLEMENT ASSET: ${a.symbol} (verified A-Token ${a.address.slice(0, 10)}…) · POLICY: min A-Pass tier ${a.rule.min_tier}`;
+  }
+}
+
+loadAsset();
 refresh();
 setInterval(refresh, 1500);

@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { agents, listAgents, payments, stats } from './store.js';
-import { createAgent, pay, freeze, unfreeze, verifyOnChain, rechargeAgent } from './core.js';
+import { createAgent, pay, freeze, unfreeze, verifyOnChain, rechargeAgent, getAsset } from './core.js';
 import { startWorker, stopWorker, isRunning } from './worker.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -71,6 +71,8 @@ app.post('/api/pay', wrap(async (req, res) => {
 }));
 
 app.get('/api/payments', (req, res) => res.json(payments));
+
+app.get('/api/asset', (req, res) => res.json(getAsset() ?? null));
 
 app.get('/api/stats', (req, res) => {
   const list = listAgents();

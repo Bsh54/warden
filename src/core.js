@@ -5,11 +5,39 @@ import { agents, addPayment, stats } from './store.js';
 const CHAIN = 'base';
 const EXPIRATION = 1863690034;
 
-export const VERIFIED_MERCHANTS = new Set(['Cloud Services Inc.', 'API Gateway', 'Model Provider', 'Data Node 7']);
-
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomAddress = () => '0x' + crypto.randomBytes(20).toString('hex');
 const newCustomerId = () => 'WARDEN' + Date.now() + crypto.randomInt(1000, 9999);
+
+let asset = null;
+
+export async function resolveAsset() {
+  if (asset) return asset;
+  const list = await postJson('/query_deposit_atoken_list', { chain: CHAIN });
+  const tokens = list.data?.tokens ?? [];
+  const entry = tokens.find((t) => t.atoken?.symbol?.toLowerCase() === 'ausdc') ?? tokens[0];
+  if (!entry) throw new Error('No A-Token available on chain');
+  const address = entry.atoken.address;
+  const rulesRes = await postJson('/atoken/rules', { chain: CHAIN, atoken_address: address });
+  const rule = rulesRes.data?.rules?.[0] ?? { min_tier: 0, min_sub_tier: 0, countries: [], is_black_list: false };
+  asset = { symbol: entry.atoken.symbol, address, decimals: entry.atoken.decimals, rule };
+  return asset;
+}
+
+export const getAsset = () => asset;
+
+function meetsAssetRule(agent, rule) {
+  if (rule.min_tier && !(Number(agent.tier) > rule.min_tier)) {
+    return { ok: false, reason: `A-Pass tier ${agent.tier} below ${asset.symbol} policy (min ${rule.min_tier})` };
+  }
+  if (rule.countries?.length) {
+    const match = (agent.countries ?? []).some((c) => rule.countries.includes(c));
+    if (rule.is_black_list ? match : !match) {
+      return { ok: false, reason: `country not permitted by ${asset.symbol} policy` };
+    }
+  }
+  return { ok: true };
+}
 
 export async function createAgent({ name, principal = 'Unknown', limitUsd = 1000, countryISO2 = 'SG' }) {
   const address = randomAddress();
@@ -39,6 +67,8 @@ export async function createAgent({ name, principal = 'Unknown', limitUsd = 1000
     address,
     customerId,
     cvRecordId: res.data.cvRecordId,
+    tier: Number(res.data.tier) || 0,
+    countries: [countryISO2],
     limitUsd,
     spentUsd: 0,
     status: 'ACTIVE',
@@ -53,32 +83,43 @@ export async function liveStatus(agent) {
   return res.code === '0000' ? res.data.status : null;
 }
 
-export async function checkPayment(agentId, to, amountUsd) {
+export async function checkPayment(agentId, to, amount) {
   const agent = agents.get(agentId);
   if (!agent) return { allowed: false, reason: 'Unknown agent' };
+  const a = await resolveAsset();
+
   if (agent.status === 'FROZEN' || (await liveStatus(agent)) === 2)
     return { allowed: false, reason: 'Agent A-Pass frozen (sanctioned)' };
+
+  const senderPolicy = meetsAssetRule(agent, a.rule);
+  if (!senderPolicy.ok) return { allowed: false, reason: `Sender ${senderPolicy.reason}` };
+
   if (to.startsWith('AGT-')) {
     const dest = agents.get(to);
     if (!dest) return { allowed: false, reason: 'Counterparty not verified' };
     if (dest.status === 'FROZEN') return { allowed: false, reason: 'Counterparty sanctioned (frozen)' };
-  } else if (!VERIFIED_MERCHANTS.has(to)) {
-    return { allowed: false, reason: 'Counterparty not verified' };
+    const recipientPolicy = meetsAssetRule(dest, a.rule);
+    if (!recipientPolicy.ok) return { allowed: false, reason: `Recipient ${recipientPolicy.reason}` };
+  } else {
+    return { allowed: false, reason: `Recipient cannot hold ${a.symbol} (no verified A-Pass)` };
   }
-  if (agent.spentUsd + amountUsd > agent.limitUsd)
+
+  if (agent.spentUsd + amount > agent.limitUsd)
     return { allowed: false, reason: `Limit exceeded (threshold: $${agent.limitUsd})` };
+
   return { allowed: true, reason: 'OK' };
 }
 
-export async function pay(agentId, to, amountUsd) {
+export async function pay(agentId, to, amount) {
   const agent = agents.get(agentId);
   const toName = agents.get(to)?.name ?? to;
-  const check = await checkPayment(agentId, to, amountUsd);
+  const symbol = asset?.symbol ?? 'aUSDC';
+  const check = await checkPayment(agentId, to, amount);
   if (check.allowed) {
-    agent.spentUsd += amountUsd;
-    addPayment({ from: agent.name, to: toName, amountUsd, status: 'AUTHORIZED' });
+    agent.spentUsd += amount;
+    addPayment({ from: agent.name, to: toName, amountUsd: amount, asset: symbol, status: 'AUTHORIZED' });
   } else {
-    addPayment({ from: agent?.name ?? agentId, to: toName, amountUsd, status: 'BLOCKED', reason: check.reason });
+    addPayment({ from: agent?.name ?? agentId, to: toName, amountUsd: amount, asset: symbol, status: 'BLOCKED', reason: check.reason });
   }
   return check;
 }
