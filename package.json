@@ -1,0 +1,13 @@
+{
+  "name": "warden",
+  "version": "0.1.0",
+  "description": "The compliance rail for autonomous AI agents.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "demo": "node src/cli.js"
+  },
+  "license": "MIT"
+}
