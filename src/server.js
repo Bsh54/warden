@@ -8,9 +8,15 @@ import { startWorker, stopWorker, isRunning } from './worker.js';
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(root, 'public'), { extensions: ['html'] }));
+app.use(express.static(path.join(root, 'public'), {
+  extensions: ['html'],
+  setHeaders: (res) => res.set('Cache-Control', 'no-cache'),
+}));
 
-const sendPage = (file) => (req, res) => res.sendFile(path.join(root, 'public', file));
+const sendPage = (file) => (req, res) => {
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile(path.join(root, 'public', file));
+};
 app.get('/overview', sendPage('overview.html'));
 app.get('/create', sendPage('create.html'));
 app.get('/agents/:id', sendPage('agent.html'));
