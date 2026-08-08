@@ -72,15 +72,6 @@ document.addEventListener('click', async (e) => {
   if (unfreezeBtn) { await api(`/api/agents/${unfreezeBtn.dataset.unfreeze}/unfreeze`, { method: 'POST' }); refresh(); }
 });
 
-$('#startBtn').onclick = () => api('/api/demo/start', { method: 'POST' });
-$('#stopBtn').onclick = () => api('/api/demo/stop', { method: 'POST' });
-
-$('#sanctionBtn').onclick = async () => {
-  const agents = await api('/api/agents');
-  const target = agents.find((a) => a.status === 'ACTIVE');
-  if (target) { await api(`/api/agents/${target.id}/freeze`, { method: 'POST' }); refresh(); }
-};
-
 $('#reactivateBtn').onclick = async () => {
   const agents = await api('/api/agents');
   for (const a of agents.filter((a) => a.status === 'FROZEN')) {

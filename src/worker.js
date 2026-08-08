@@ -10,8 +10,8 @@ let ticks = 0;
 
 async function ensureAgents() {
   if (listAgents().length) return;
-  await createAgent({ name: 'Alpha-Bot', principal: 'Acme Corp', limitUsd: 2000 });
-  await createAgent({ name: 'Beta-Bot', principal: 'Acme Corp', limitUsd: 2000 });
+  await createAgent({ name: 'Alpha-Bot', principal: 'Acme Corp', limitUsd: 5000 });
+  await createAgent({ name: 'Beta-Bot', principal: 'Acme Corp', limitUsd: 5000 });
 }
 
 function counterparty(agent) {
@@ -26,12 +26,12 @@ async function tick() {
   ticks += 1;
   const all = listAgents();
   if (!all.length) return;
-  if (ticks % 40 === 0) all.forEach((a) => { a.spentUsd = 0; });
+  if (ticks % 40 === 0) all.filter((a) => a.status === 'ACTIVE').forEach((a) => { a.spentUsd = 0; });
   const agent = pick(all);
   const to = counterparty(agent);
-  const amount = Math.random() < 0.15
-    ? Math.round(1200 + Math.random() * 1200)
-    : Math.round(10 + Math.random() * 130);
+  const amount = Math.random() < 0.1
+    ? Math.round(1500 + Math.random() * 2000)
+    : Math.round(10 + Math.random() * 120);
   await pay(agent.id, to, amount).catch(() => {});
 }
 
