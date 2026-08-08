@@ -1,7 +1,10 @@
 const $ = (sel) => document.querySelector(sel);
 const api = (url, opts) => fetch(url, opts).then((r) => r.json());
 
+let ASSET = null;
+
 function agentCard(a) {
+  const eligible = !ASSET || Number(a.tier) > ASSET.rule.min_tier;
   const pct = Math.min(100, Math.round((a.spentUsd / a.limitUsd) * 100));
   const frozen = a.status === 'FROZEN';
   const bar = frozen || a.spentUsd > a.limitUsd ? 'bg-error' : pct > 80 ? 'bg-amber-500' : 'bg-secondary-fixed-dim';
@@ -33,11 +36,15 @@ function agentCard(a) {
         <div class="h-full ${bar}" style="width:${pct}%"></div>
       </div>
     </div>
+    <div class="flex justify-between font-mono-hash text-mono-hash pt-1 border-t border-white/5">
+      <span class="text-on-surface-variant">A-Pass tier ${a.tier} · ${(a.countries || []).join(',')}</span>
+      <span class="${eligible ? 'text-emerald-400' : 'text-error'}">${ASSET ? ASSET.symbol : 'asset'} ${eligible ? 'eligible' : 'not eligible'}</span>
+    </div>
     <div class="flex gap-3">
       ${action}
       <button data-recharge="${a.id}" class="flex-1 py-2 rounded border border-secondary-fixed-dim/30 text-secondary-fixed-dim hover:bg-secondary-fixed-dim/10 font-mono-label text-mono-label transition-colors">Recharge</button>
     </div>
-    <a href="/agent.html?id=${a.id}" class="text-center font-mono-hash text-mono-hash text-on-surface-variant hover:text-secondary-fixed-dim transition-colors">Details &amp; on-chain proof &rarr;</a>
+    <a href="/agents/${a.id}" class="text-center font-mono-hash text-mono-hash text-on-surface-variant hover:text-secondary-fixed-dim transition-colors">Details &amp; on-chain proof &rarr;</a>
   </div>`;
 }
 
@@ -86,10 +93,10 @@ $('#reactivateBtn').onclick = async () => {
 };
 
 async function loadAsset() {
-  const a = await api('/api/asset');
+  ASSET = await api('/api/asset');
   const el = $('#asset');
-  if (a && el) {
-    el.textContent = `SETTLEMENT ASSET: ${a.symbol} (verified A-Token ${a.address.slice(0, 10)}…) · POLICY: min A-Pass tier ${a.rule.min_tier}`;
+  if (ASSET && el) {
+    el.textContent = `SETTLEMENT ASSET: ${ASSET.symbol} (verified A-Token ${ASSET.address.slice(0, 10)}…) · POLICY: min A-Pass tier ${ASSET.rule.min_tier}`;
   }
 }
 

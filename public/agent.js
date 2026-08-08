@@ -1,4 +1,4 @@
-const id = new URLSearchParams(location.search).get('id');
+const id = location.pathname.split('/').pop();
 const $ = (s) => document.querySelector(s);
 const api = (url, opts) => fetch(url, opts).then((r) => r.json());
 
@@ -12,10 +12,17 @@ async function load() {
   $('#title').textContent = a.name;
   $('#subtitle').innerHTML = `ID: ${a.id} &nbsp;|&nbsp; Principal: ${a.principal} &nbsp;|&nbsp; <span class="${frozen ? 'text-error' : 'text-emerald-400'}">${a.status}</span>`;
 
+  const asset = await api('/api/asset');
+  const eligible = !asset || Number(a.tier) > asset.rule.min_tier;
   $('#identity').innerHTML =
     row('Chain', a.chain) +
     row('A-Pass wallet', a.address, 'text-secondary-fixed-dim') +
-    row('Spending', `$${a.spentUsd} / $${a.limitUsd}`, a.spentUsd > a.limitUsd ? 'text-error' : 'text-on-surface');
+    row('A-Pass tier', a.tier) +
+    row('Countries', (a.countries || []).join(', ')) +
+    row('Spending', `$${a.spentUsd} / $${a.limitUsd}`, a.spentUsd > a.limitUsd ? 'text-error' : 'text-on-surface') +
+    (asset
+      ? row(`Eligible for ${asset.symbol}`, eligible ? `YES (tier ${a.tier} > ${asset.rule.min_tier})` : 'NO', eligible ? 'text-emerald-400' : 'text-error')
+      : '');
 
   $('#enforcement').innerHTML =
     row('Local status', a.status, frozen ? 'text-error' : 'text-emerald-400') +
