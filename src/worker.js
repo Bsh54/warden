@@ -1,10 +1,12 @@
 import { listAgents } from './store.js';
-import { createAgent, pay } from './core.js';
+import { createAgent, pay, VERIFIED_MERCHANTS } from './core.js';
 
-const EXTERNALS = ['Vendor X', 'Cloud Services Inc.', 'API Gateway', 'Data Node 7', 'Model Provider'];
+const VERIFIED = [...VERIFIED_MERCHANTS];
+const UNVERIFIED = ['Unknown Entity', 'Anon Wallet', 'Unlisted Vendor'];
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 let timer = null;
+let ticks = 0;
 
 async function ensureAgents() {
   if (listAgents().length) return;
@@ -12,13 +14,22 @@ async function ensureAgents() {
   await createAgent({ name: 'Beta-Bot', principal: 'Acme Corp', limitUsd: 2000 });
 }
 
+function counterparty(agent) {
+  const others = listAgents().filter((a) => a.id !== agent.id).map((a) => a.id);
+  const roll = Math.random();
+  if (roll < 0.4 && others.length) return pick(others);
+  if (roll < 0.85) return pick(VERIFIED);
+  return pick(UNVERIFIED);
+}
+
 async function tick() {
+  ticks += 1;
   const all = listAgents();
   if (!all.length) return;
+  if (ticks % 40 === 0) all.forEach((a) => { a.spentUsd = 0; });
   const agent = pick(all);
-  const others = all.filter((a) => a.id !== agent.id);
-  const to = Math.random() < 0.6 && others.length ? pick(others).id : pick(EXTERNALS);
-  const amount = Math.random() < 0.18
+  const to = counterparty(agent);
+  const amount = Math.random() < 0.15
     ? Math.round(1200 + Math.random() * 1200)
     : Math.round(10 + Math.random() * 130);
   await pay(agent.id, to, amount).catch(() => {});

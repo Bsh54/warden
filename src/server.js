@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { agents, listAgents, payments } from './store.js';
-import { createAgent, pay, freeze, unfreeze } from './core.js';
+import { createAgent, pay, freeze, unfreeze, verifyOnChain } from './core.js';
 import { startWorker, stopWorker, isRunning } from './worker.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -19,6 +19,9 @@ const view = (a) => ({
   limitUsd: a.limitUsd,
   spentUsd: a.spentUsd,
   status: a.status,
+  lastTxHash: a.lastTxHash ?? null,
+  lastTxAction: a.lastTxAction ?? null,
+  lastTxAt: a.lastTxAt ?? null,
 });
 
 const wrap = (handler) => (req, res) =>
@@ -48,6 +51,10 @@ app.post('/api/agents/:id/freeze', wrap(async (req, res) => {
 app.post('/api/agents/:id/unfreeze', wrap(async (req, res) => {
   const result = await unfreeze(req.params.id);
   res.json(result);
+}));
+
+app.get('/api/agents/:id/verify', wrap(async (req, res) => {
+  res.json(await verifyOnChain(req.params.id));
 }));
 
 app.post('/api/pay', wrap(async (req, res) => {

@@ -34,6 +34,7 @@ function agentCard(a) {
       </div>
     </div>
     ${action}
+    <a href="/agent.html?id=${a.id}" class="text-center font-mono-hash text-mono-hash text-on-surface-variant hover:text-secondary-fixed-dim transition-colors">Details &amp; on-chain proof &rarr;</a>
   </div>`;
 }
 

@@ -5,6 +5,8 @@ import { agents, addPayment } from './store.js';
 const CHAIN = 'base';
 const EXPIRATION = 1863690034;
 
+export const VERIFIED_MERCHANTS = new Set(['Cloud Services Inc.', 'API Gateway', 'Model Provider', 'Data Node 7']);
+
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const randomAddress = () => '0x' + crypto.randomBytes(20).toString('hex');
 const newCustomerId = () => 'WARDEN' + Date.now() + crypto.randomInt(1000, 9999);
@@ -56,8 +58,13 @@ export async function checkPayment(agentId, to, amountUsd) {
   if (!agent) return { allowed: false, reason: 'Unknown agent' };
   if (agent.status === 'FROZEN' || (await liveStatus(agent)) === 2)
     return { allowed: false, reason: 'Agent A-Pass frozen (sanctioned)' };
-  if (to.startsWith('AGT-') && !agents.has(to))
+  if (to.startsWith('AGT-')) {
+    const dest = agents.get(to);
+    if (!dest) return { allowed: false, reason: 'Counterparty not verified' };
+    if (dest.status === 'FROZEN') return { allowed: false, reason: 'Counterparty sanctioned (frozen)' };
+  } else if (!VERIFIED_MERCHANTS.has(to)) {
     return { allowed: false, reason: 'Counterparty not verified' };
+  }
   if (agent.spentUsd + amountUsd > agent.limitUsd)
     return { allowed: false, reason: `Limit exceeded (threshold: $${agent.limitUsd})` };
   return { allowed: true, reason: 'OK' };
@@ -88,6 +95,9 @@ export async function freeze(agentId, reason = 'Warden sanction (compliance)') {
   });
   if (res.code !== '0000') throw new Error(`freeze failed: ${res.message}`);
   agent.status = 'FROZEN';
+  agent.lastTxHash = res.data.txHash;
+  agent.lastTxAction = 'FREEZE';
+  agent.lastTxAt = Date.now();
   return res.data;
 }
 
@@ -101,5 +111,24 @@ export async function unfreeze(agentId) {
     wallet: { chain: agent.chain, address: agent.address },
   });
   agent.status = 'ACTIVE';
+  agent.lastTxHash = res.data?.txHash ?? agent.lastTxHash;
+  agent.lastTxAction = 'UNFREEZE';
+  agent.lastTxAt = Date.now();
   return res.data;
+}
+
+export async function verifyOnChain(agentId) {
+  const agent = agents.get(agentId);
+  if (!agent) throw new Error('Unknown agent');
+  const response = await postJson('/query_apass', { chain: agent.chain, address: agent.address });
+  const onChainStatus = response.code === '0000' ? response.data.status : null;
+  return {
+    address: agent.address,
+    chain: agent.chain,
+    localStatus: agent.status,
+    onChainStatus,
+    onChainLabel: onChainStatus === 2 ? 'FROZEN' : onChainStatus === 1 ? 'ACTIVE' : 'PENDING',
+    source: 'Cleanverse query_apass',
+    raw: response,
+  };
 }

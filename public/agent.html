@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+<title>Warden — Agent Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="/styles.css" rel="stylesheet" />
+</head>
+<body class="text-on-surface font-body-md bg-background antialiased min-h-screen flex">
+<nav class="fixed left-0 top-0 h-screen w-64 flex flex-col pt-10 pb-8 z-40 border-r border-white/10 bg-surface-container-lowest">
+<div class="px-6 mb-10">
+<div class="font-headline-md text-headline-md font-black tracking-widest text-on-surface">WARDEN</div>
+<div class="font-mono-label text-mono-label text-on-surface-variant mt-1">Compliance Rail v1.0</div>
+</div>
+<div class="flex-1 flex flex-col gap-2 px-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all" href="/overview.html">
+<span class="material-symbols-outlined">dashboard</span><span class="font-mono-label text-mono-label">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all" href="/">
+<span class="material-symbols-outlined">security</span><span class="font-mono-label text-mono-label">Control Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/30 transition-all" href="/create.html">
+<span class="material-symbols-outlined">add_circle</span><span class="font-mono-label text-mono-label">Create Agent</span>
+</a>
+</div>
+</nav>
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<header class="h-24 border-b border-white/10 bg-surface-container/10 backdrop-blur-md flex items-center gap-4 px-gutter sticky top-0 z-30">
+<a href="/" class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">arrow_back</a>
+<div>
+<h1 id="title" class="font-headline-lg text-headline-lg text-on-surface">Agent</h1>
+<p id="subtitle" class="font-mono-hash text-mono-hash text-on-surface-variant mt-1">Loading...</p>
+</div>
+</header>
+<div class="p-gutter grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<section class="glass-card rounded-xl p-6 flex flex-col gap-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">On-chain identity</h2>
+<div id="identity" class="flex flex-col gap-3 font-mono-hash text-mono-hash"></div>
+<button id="verifyBtn" class="mt-2 py-3 rounded bg-secondary-container text-on-secondary font-mono-label text-mono-label hover:bg-secondary-fixed-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">verified</span> Verify on Cleanverse (live)
+</button>
+<pre id="proof" class="hidden bg-surface-container-lowest border border-white/10 rounded p-4 text-[11px] text-on-surface-variant overflow-x-auto whitespace-pre-wrap"></pre>
+</section>
+<section class="glass-card rounded-xl p-6 flex flex-col gap-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Enforcement</h2>
+<div id="enforcement" class="flex flex-col gap-3 font-mono-hash text-mono-hash"></div>
+<div class="flex gap-3">
+<button id="freezeBtn" class="flex-1 py-2 rounded border border-error/30 text-error hover:bg-error/10 font-mono-label text-mono-label transition-colors">Freeze</button>
+<button id="unfreezeBtn" class="flex-1 py-2 rounded border border-secondary-fixed-dim/30 text-secondary-fixed-dim hover:bg-secondary-fixed-dim/10 font-mono-label text-mono-label transition-colors">Unfreeze</button>
+</div>
+</section>
+<section class="glass-card rounded-xl p-6 flex flex-col gap-4 lg:col-span-2">
+<h2 class="font-headline-md text-headline-md text-on-surface">Payment history</h2>
+<div id="history" class="flex flex-col gap-1 font-mono-hash text-mono-hash"></div>
+</section>
+</div>
+</main>
+<script src="/agent.js"></script>
+</body>
+</html>
