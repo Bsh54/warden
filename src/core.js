@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { postEncrypted, postJson } from './cleanverse.js';
-import { agents, addPayment } from './store.js';
+import { agents, addPayment, stats } from './store.js';
 
 const CHAIN = 'base';
 const EXPIRATION = 1863690034;
@@ -98,6 +98,7 @@ export async function freeze(agentId, reason = 'Warden sanction (compliance)') {
   agent.lastTxHash = res.data.txHash;
   agent.lastTxAction = 'FREEZE';
   agent.lastTxAt = Date.now();
+  stats.freezes += 1;
   return res.data;
 }
 
@@ -114,6 +115,7 @@ export async function unfreeze(agentId) {
   agent.lastTxHash = res.data?.txHash ?? agent.lastTxHash;
   agent.lastTxAction = 'UNFREEZE';
   agent.lastTxAt = Date.now();
+  stats.unfreezes += 1;
   return res.data;
 }
 

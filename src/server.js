@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { agents, listAgents, payments } from './store.js';
+import { agents, listAgents, payments, stats } from './store.js';
 import { createAgent, pay, freeze, unfreeze, verifyOnChain } from './core.js';
 import { startWorker, stopWorker, isRunning } from './worker.js';
 
@@ -63,6 +63,19 @@ app.post('/api/pay', wrap(async (req, res) => {
 }));
 
 app.get('/api/payments', (req, res) => res.json(payments));
+
+app.get('/api/stats', (req, res) => {
+  const list = listAgents();
+  const total = stats.authorized + stats.blocked;
+  res.json({
+    ...stats,
+    total,
+    complianceRate: total ? Math.round((stats.authorized / total) * 100) : 100,
+    agents: list.length,
+    active: list.filter((a) => a.status === 'ACTIVE').length,
+    frozen: list.filter((a) => a.status === 'FROZEN').length,
+  });
+});
 
 app.post('/api/demo/start', wrap(async (req, res) => res.json(await startWorker())));
 app.post('/api/demo/stop', (req, res) => res.json(stopWorker()));
