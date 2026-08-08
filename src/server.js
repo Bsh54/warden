@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { agents, listAgents, payments, stats } from './store.js';
-import { createAgent, pay, freeze, unfreeze, verifyOnChain } from './core.js';
+import { createAgent, pay, freeze, unfreeze, verifyOnChain, rechargeAgent } from './core.js';
 import { startWorker, stopWorker, isRunning } from './worker.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -56,6 +56,14 @@ app.post('/api/agents/:id/unfreeze', wrap(async (req, res) => {
 app.get('/api/agents/:id/verify', wrap(async (req, res) => {
   res.json(await verifyOnChain(req.params.id));
 }));
+
+app.post('/api/agents/:id/recharge', (req, res) => {
+  try {
+    res.json(rechargeAgent(req.params.id));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.post('/api/pay', wrap(async (req, res) => {
   const { from, to, amountUsd } = req.body;

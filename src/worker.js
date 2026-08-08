@@ -6,7 +6,6 @@ const UNVERIFIED = ['Unknown Entity', 'Anon Wallet', 'Unlisted Vendor'];
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 let timer = null;
-let ticks = 0;
 
 async function ensureAgents() {
   if (listAgents().length) return;
@@ -17,21 +16,19 @@ async function ensureAgents() {
 function counterparty(agent) {
   const others = listAgents().filter((a) => a.id !== agent.id).map((a) => a.id);
   const roll = Math.random();
-  if (roll < 0.4 && others.length) return pick(others);
-  if (roll < 0.85) return pick(VERIFIED);
+  if (roll < 0.7 && others.length) return pick(others);
+  if (roll < 0.88) return pick(VERIFIED);
   return pick(UNVERIFIED);
 }
 
 async function tick() {
-  ticks += 1;
   const all = listAgents();
   if (!all.length) return;
-  if (ticks % 40 === 0) all.filter((a) => a.status === 'ACTIVE').forEach((a) => { a.spentUsd = 0; });
   const agent = pick(all);
   const to = counterparty(agent);
-  const amount = Math.random() < 0.1
-    ? Math.round(1500 + Math.random() * 2000)
-    : Math.round(10 + Math.random() * 120);
+  const amount = Math.random() < 0.08
+    ? Math.round(1000 + Math.random() * 1500)
+    : Math.round(10 + Math.random() * 110);
   await pay(agent.id, to, amount).catch(() => {});
 }
 

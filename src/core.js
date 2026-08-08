@@ -119,6 +119,13 @@ export async function unfreeze(agentId) {
   return res.data;
 }
 
+export function rechargeAgent(agentId) {
+  const agent = agents.get(agentId);
+  if (!agent) throw new Error('Unknown agent');
+  agent.spentUsd = 0;
+  return { id: agent.id, spentUsd: agent.spentUsd, limitUsd: agent.limitUsd };
+}
+
 export async function verifyOnChain(agentId) {
   const agent = agents.get(agentId);
   if (!agent) throw new Error('Unknown agent');

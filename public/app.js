@@ -9,8 +9,8 @@ function agentCard(a) {
     ? `<span class="px-3 py-1 rounded-full bg-error/10 text-error border border-error/30 font-mono-hash text-mono-hash flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">lock</span>FROZEN</span>`
     : `<span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono-hash text-mono-hash flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>ACTIVE</span>`;
   const action = frozen
-    ? `<button data-unfreeze="${a.id}" class="w-full py-2 rounded border border-secondary-fixed-dim/30 text-secondary-fixed-dim hover:bg-secondary-fixed-dim/10 font-mono-label text-mono-label transition-colors">Unfreeze</button>`
-    : `<button data-freeze="${a.id}" class="w-full py-2 rounded border border-error/30 text-error hover:bg-error/10 font-mono-label text-mono-label transition-colors">Freeze</button>`;
+    ? `<button data-unfreeze="${a.id}" class="flex-1 py-2 rounded border border-secondary-fixed-dim/30 text-secondary-fixed-dim hover:bg-secondary-fixed-dim/10 font-mono-label text-mono-label transition-colors">Unfreeze</button>`
+    : `<button data-freeze="${a.id}" class="flex-1 py-2 rounded border border-error/30 text-error hover:bg-error/10 font-mono-label text-mono-label transition-colors">Freeze</button>`;
   return `<div class="glass-card rounded-xl p-6 flex flex-col gap-4 ${frozen ? 'opacity-75 border-error/30' : ''}">
     <div class="flex justify-between items-start">
       <div class="flex items-center gap-3">
@@ -33,7 +33,10 @@ function agentCard(a) {
         <div class="h-full ${bar}" style="width:${pct}%"></div>
       </div>
     </div>
-    ${action}
+    <div class="flex gap-3">
+      ${action}
+      <button data-recharge="${a.id}" class="flex-1 py-2 rounded border border-secondary-fixed-dim/30 text-secondary-fixed-dim hover:bg-secondary-fixed-dim/10 font-mono-label text-mono-label transition-colors">Recharge</button>
+    </div>
     <a href="/agent.html?id=${a.id}" class="text-center font-mono-hash text-mono-hash text-on-surface-variant hover:text-secondary-fixed-dim transition-colors">Details &amp; on-chain proof &rarr;</a>
   </div>`;
 }
@@ -68,8 +71,10 @@ async function refresh() {
 document.addEventListener('click', async (e) => {
   const freezeBtn = e.target.closest('[data-freeze]');
   const unfreezeBtn = e.target.closest('[data-unfreeze]');
+  const rechargeBtn = e.target.closest('[data-recharge]');
   if (freezeBtn) { await api(`/api/agents/${freezeBtn.dataset.freeze}/freeze`, { method: 'POST' }); refresh(); }
   if (unfreezeBtn) { await api(`/api/agents/${unfreezeBtn.dataset.unfreeze}/unfreeze`, { method: 'POST' }); refresh(); }
+  if (rechargeBtn) { await api(`/api/agents/${rechargeBtn.dataset.recharge}/recharge`, { method: 'POST' }); refresh(); }
 });
 
 $('#reactivateBtn').onclick = async () => {
