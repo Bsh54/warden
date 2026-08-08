@@ -62,4 +62,9 @@ app.post('/api/demo/stop', (req, res) => res.json(stopWorker()));
 app.get('/api/demo/status', (req, res) => res.json({ running: isRunning() }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Warden running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Warden running on http://localhost:${PORT}`);
+  startWorker()
+    .then(() => console.log('Autonomous agents started'))
+    .catch((error) => console.error('Worker start failed:', error.message));
+});
